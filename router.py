@@ -1,7 +1,9 @@
 import os
 import httpx
-import json
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 GOOGLE_KEY = os.getenv("GOOGLE_API_KEY", "")
@@ -50,6 +52,13 @@ async def call_anthropic(model: str, body: dict) -> dict:
         )
         data = resp.json()
 
+    if "error" in data:
+        logger.error(f"Anthropic error: {data['error']}")
+        raise ValueError(f"Anthropic API error: {data['error'].get('message', data['error'])}")
+
+    content = data.get("content", [])
+    text = content[0].get("text", "") if content else ""
+
     # Convert Anthropic response to OpenAI format
     return {
         "id": data.get("id", ""),
@@ -59,7 +68,7 @@ async def call_anthropic(model: str, body: dict) -> dict:
             "index": 0,
             "message": {
                 "role": "assistant",
-                "content": data.get("content", [{}])[0].get("text", ""),
+                "content": text,
             },
             "finish_reason": "stop",
         }],

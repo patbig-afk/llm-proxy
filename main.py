@@ -44,3 +44,37 @@ async def proxy_completions(request: Request):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/debug")
+async def debug(request: Request):
+    check_auth(request)
+    import httpx, os
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
+    google_key = os.getenv("GOOGLE_API_KEY", "")
+    results = {}
+
+    # Test Anthropic
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={"x-api-key": anthropic_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                json={"model": "claude-haiku-4-5-20251001", "max_tokens": 10, "messages": [{"role": "user", "content": "Say OK"}]},
+            )
+            results["anthropic"] = r.json()
+    except Exception as e:
+        results["anthropic"] = {"error": str(e)}
+
+    # Test Gemini
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            r = await client.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={google_key}",
+                json={"contents": [{"role": "user", "parts": [{"text": "Say OK"}]}]},
+            )
+            results["gemini"] = r.json()
+    except Exception as e:
+        results["gemini"] = {"error": str(e)}
+
+    return results
