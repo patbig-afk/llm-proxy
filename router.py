@@ -10,8 +10,8 @@ GOOGLE_KEY = os.getenv("GOOGLE_API_KEY", "")
 
 ROUTING = {
     "SIMPLE": "gemini-2.5-flash",
-    "MEDIUM": "claude-haiku-4-5-20251001",
-    "COMPLEX": "claude-sonnet-4-6",
+    "MEDIUM": "claude-3-5-haiku-20241022",
+    "COMPLEX": "claude-3-5-sonnet-20241022",
 }
 
 
