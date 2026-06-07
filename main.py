@@ -60,7 +60,7 @@ async def debug(request: Request):
             r = await client.post(
                 "https://api.anthropic.com/v1/messages",
                 headers={"x-api-key": anthropic_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                json={"model": "claude-3-5-haiku-20241022", "max_tokens": 10, "messages": [{"role": "user", "content": "Say OK"}]},
+                json={"model": "claude-haiku-4-5-20251001", "max_tokens": 10, "messages": [{"role": "user", "content": "Say OK"}]},
             )
             results["anthropic"] = r.json()
     except Exception as e:
